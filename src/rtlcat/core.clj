@@ -33,7 +33,7 @@
       (cons y (cons x program)))))
 
 (defn drop [program]
-  (next (run program)))
+  (run (next program)))
 
 (defn call [program]
   (when-let [[q & program] (run program)]
