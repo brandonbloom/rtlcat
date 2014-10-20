@@ -1,14 +1,7 @@
 # rtlcat
 
-A Clojure library designed to ... well, that part is up to you.
+Continuing the story of https://github.com/webyrd/cato ...
 
-## Usage
-
-FIXME
-
-## License
-
-Copyright © 2014 FIXME
-
-Distributed under the Eclipse Public License either version 1.0 or (at
-your option) any later version.
+Trying to design a concatenative evaluator which will better prune the search
+tree. This one is an attempt at prefix notation with backtracking rule
+matching.
