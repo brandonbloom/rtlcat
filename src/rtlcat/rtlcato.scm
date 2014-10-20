@@ -76,7 +76,7 @@
                 (cato k ret)
                 (cato `(,newlst . ,ret) out)))
 
-             ;; dip ( x q -- x )
+             ;; dip ( q x -- x )
              ((== 'dip word)
               (fresh (q x k qk ret)
                 (cato args `(,q ,x . ,k))
