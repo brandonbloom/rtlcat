@@ -44,6 +44,11 @@
     (when-let [[hide & program] (run program)]
       (run (concat [hide] q program)))))
 
+(defn append [program]
+  (when-let [[v & program] (run program)]
+    (when-let [[x & program] (run program)]
+      (cons (conj v x) program))))
+
 (comment
 
   (run [])
@@ -57,5 +62,6 @@
   (run [add call [dup] 3])
   (run [3 dip [add] 5 7 9])
   (run [5 drop 10 15])
+  (run [call append [add 5] 10])
 
 )
