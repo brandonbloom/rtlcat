@@ -9,15 +9,14 @@
 (defn run [program]
   (when-let [[x & xs] (seq program)]
     (cond
-      (literal? x) (cons x (run xs))
+      (literal? x) (cons x (lazy-seq (run xs)))
       (word? x) (x xs)
       :else (throw (Exception. (str "bad value: " (pr-str x)))))))
 
 (defn add [program]
   (when-let [[x & program] (run program)]
     (when-let [[y & program] (run program)]
-      (lazy-seq
-        (cons (+ x y) program)))))
+      (cons (+ x y) program))))
 
 (comment
 
