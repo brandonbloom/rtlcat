@@ -1,13 +1,13 @@
 (load "mk.scm")
 
-(define appendo
+(define concato
   (lambda (l s out)
     (conde
       ((== '() l) (== s out))
       ((fresh (a d res)
          (== `(,a . ,d) l)
          (== `(,a . ,res) out)
-         (appendo d s res))))))
+         (concato d s res))))))
 
 (define seqo
   (lambda (u)
@@ -75,7 +75,7 @@
              ((== 'call word)
               (fresh (q k qk)
                 (cato args `(,q . ,k))
-                (appendo q k qk)
+                (concato q k qk)
                 (cato qk out)))
 
              ;; cons ( x lst -- newlst )
@@ -90,7 +90,7 @@
              ((== 'dip word)
               (fresh (q x k qk)
                 (cato args `(,q ,x . ,k))
-                (appendo `(,x . ,q) k qk)
+                (concato `(,x . ,q) k qk)
                 (cato qk out)))
 
              ;; choose ( b t f -- x )
@@ -128,8 +128,16 @@
 (run 5 (q) (cato '(choose #f 1 2) q))
 (run 5 (q) (cato '(if #t (dup 2) (dup 4)) q))
 
-;; BACKWARDS!
+;; BACKWARDS! (etc)
 (run 5 (q) (cato q '(1 1)))
+(run 15 (q) (fresh (x y)
+              (== `(,x . (#t . ,y)) q)
+              (cato q '(3))))
+(run 10 (q)
+     (fresh (x lst)
+       (== lst '(1 2 3))
+       (concato q lst x)
+       (cato x lst)))
 
 ;; quines!?
 (run 20 (q) (cato q q))
