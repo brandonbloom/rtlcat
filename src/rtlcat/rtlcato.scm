@@ -48,6 +48,9 @@
                (cato args ret)
                (== `(,word . ,ret) out)))
 
+
+            ;;; intrinsics
+
             ;; swap ( a b -- b a )
             ((== 'swap word)
              (fresh (a b k ret)
@@ -101,6 +104,13 @@
                 (== `(,x . ,ret) out)))
 
 
+             ;;; standard library
+
+             ;; if ( b then else -- x )
+             ((== 'if word)
+              (cato `(call choose . ,args) out))
+
+
              ))))))
 
 #|
@@ -116,6 +126,7 @@
 (run 5 (q) (cato '(dip (swap) 1 3 5) q))
 (run 5 (q) (cato '(choose #t 1 2) q))
 (run 5 (q) (cato '(choose #f 1 2) q))
+(run 5 (q) (cato '(if #t (dup 2) (dup 4)) q))
 
 ;; BACKWARDS!
 (run 5 (q) (cato q '(1 1)))
