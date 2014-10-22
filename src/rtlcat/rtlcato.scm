@@ -10,20 +10,27 @@
          (appendo d s res))))))
 
 (define seqo
-  (lambda (out)
+  (lambda (u)
     (fresh (a d)
       (conde
-        ((== '() out) succeed)
-        ((== `(,a . ,d) out) succeed)
+        ((== '() u) succeed)
+        ((== `(,a . ,d) u) succeed)
         (succeed fail)))))
 
 (define quotationo seqo)
 
-(define literalo
-  (lambda (out)
+(define boolo
+  (lambda (u)
     (conde
-      ((numbero out) succeed)
-      ((quotationo out) succeed))))
+      ((== u #t) succeed)
+      ((== u #f) succeed))))
+
+(define literalo
+  (lambda (u)
+    (conde
+      ((numbero u) succeed)
+      ((quotationo u) succeed)
+      ((boolo u) succeed))))
 
 (define cato
   (lambda (program out)
@@ -57,13 +64,13 @@
 
              ;; drop ( a -- )
              ((== 'drop word)
-              (fresh (a k ret)
+              (fresh (a k)
                 (cato args `(,a . ,k))
                 (cato k out)))
 
              ;; call ( q -- )
              ((== 'call word)
-              (fresh (q k qk ret)
+              (fresh (q k qk)
                 (cato args `(,q . ,k))
                 (appendo q k qk)
                 (cato qk out)))
@@ -74,14 +81,24 @@
                 (cato args `(,x ,lst . ,k))
                 (== `(,x . ,lst) newlst)
                 (cato k ret)
-                (cato `(,newlst . ,ret) out)))
+                (== `(,newlst . ,ret) out)))
 
              ;; dip ( q x -- x )
              ((== 'dip word)
-              (fresh (q x k qk ret)
+              (fresh (q x k qk)
                 (cato args `(,q ,x . ,k))
                 (appendo `(,x . ,q) k qk)
                 (cato qk out)))
+
+             ;; choose ( b t f -- x )
+             ((== 'choose word)
+              (fresh (b t f x k ret)
+                (cato args `(,b ,t ,f . ,k))
+                (conde
+                  ((== b #t) (== x t))
+                  ((== b #f) (== x f)))
+                (cato k ret)
+                (== `(,x . ,ret) out)))
 
 
              ))))))
@@ -92,10 +109,13 @@
 (run 3 (q) (cato '() q))
 (run 3 (q) (cato '(1) q))
 (run 3 (q) (cato '(1 (2 3) 4) q))
+(run 3 (q) (cato '(#t #f) q))
 (run 3 (q) (cato '(1 swap 2 3) q))
 (run 5 (q) (cato '(call (dup) 5) q))
 (run 5 (q) (cato '(cons 1 (2 3)) q))
 (run 5 (q) (cato '(dip (swap) 1 3 5) q))
+(run 5 (q) (cato '(choose #t 1 2) q))
+(run 5 (q) (cato '(choose #f 1 2) q))
 
 ;; BACKWARDS!
 (run 5 (q) (cato q '(1 1)))
