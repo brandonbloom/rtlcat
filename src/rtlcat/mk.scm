@@ -1,3 +1,11 @@
+;;; 28 November 02014 WEB
+;;;
+;;; * Fixed missing unquote before E in 'drop-Y-b/c-dup-var'
+;;;
+;;; * Updated 'rem-xx-from-d' to check against other constraints after
+;;; unification, in order to remove redundant disequality constraints
+;;; subsumed by absento constraints.
+
 ;;; newer version: Sept. 18 2013 (with eigens)
 ;;; Jason Hemann, Will Byrd, and Dan Friedman
 ;;; E = (e* . x*)*, where e* is a list of eigens and x* is a list of variables.
@@ -7,8 +15,6 @@
 ;;; All the e* must be the eigens created as part of a single eigen.  The reifier just
 ;;; abandons E, if it succeeds.  If there is no failure by then, there were no eigen
 ;;; violations.
-
-(define sort list-sort)
 
 (define empty-c '(() () () () () () ()))
 
@@ -325,7 +331,7 @@
 
 (define sorter
   (lambda (ls)
-    (sort lex<=? ls)))
+    (list-sort lex<=? ls)))
                               
 (define lex<=?
   (lambda (x y)
@@ -420,7 +426,7 @@
     (cond
       (((find-dup same-var? S) Y) =>
        (lambda (y)
-         `(,B E ,S ,D ,(remq1 y Y) ,N ,T)))
+         `(,B ,E ,S ,D ,(remq1 y Y) ,N ,T)))
       (else c))))
 
 (define var-type-mismatch?
@@ -746,7 +752,7 @@
                                   (or
                                     (anyvar? dw R)
                                     (anyeigen? dw R))))
-                               (rem-xx-from-d D S))))
+                               (rem-xx-from-d c))))
                       (rem-subsumed D)) 
                     (remp
                      (lambda (y) (var? (walk y R)))
@@ -792,7 +798,7 @@
 
 (define sort-d
   (lambda (d)
-    (sort
+    (list-sort
        (lambda (x y)
          (lex<=? (car x) (car y)))
        (map sort-pr d))))
@@ -839,15 +845,18 @@
             (subsumed? d (cdr d*))))))))
 
 (define rem-xx-from-d
-  (lambda (D S)
-    (remp not
-          (map (lambda (d)
-                 (cond
-                   ((unify* d S) =>
-                    (lambda (S0)
-                      (prefix-S S0 S)))
-                   (else #f)))
-               D))))
+  (lambdag@ (c : B E S D Y N T)
+    (let ((D (walk* D S)))
+      (remp not
+            (map (lambda (d)
+                   (cond
+                     ((unify* d S) =>
+                      (lambda (S0)
+                        (cond
+                          ((==fail-check B E S0 '() Y N T) #f)
+                          (else (prefix-S S0 S)))))
+                     (else #f)))
+                 D)))))
 
 (define rem-subsumed-T 
   (lambda (T)
