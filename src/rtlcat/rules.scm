@@ -1,6 +1,20 @@
 (load "mk.scm")
 (load "preds.scm")
+(load "dlist.scm")
 
+(define rewriteo
+  (lambda (program pattern replacement out)
+    (fresh (prefix suffix)
+      (subseqo program prefix pattern suffix)
+      (subseqo out prefix replacement suffix))))
+
+(define cato
+  (lambda (program out)
+    (conde
+      (fresh (x y)
+        (rewriteo program `(,x ,y swap) `(,y ,x) out))
+      ;...
+      )))
 
 
 #|
