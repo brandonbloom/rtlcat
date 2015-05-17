@@ -11,8 +11,8 @@
 (define cato
   (lambda (program out)
     (conde
-      (fresh (x y)
-        (rewriteo program `(,x ,y swap) `(,y ,x) out))
+      ((fresh (x y)
+         (rewriteo program `(,x ,y swap) `(,y ,x) out)))
       ;...
       )))
 
