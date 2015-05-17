@@ -1,3 +1,5 @@
+;; A relational port of the PREfix notation clojure code.
+
 (load "mk.scm")
 (load "preds.scm")
 

@@ -1,3 +1,21 @@
+(*
+
+Here's a concatenative language implemented in Mathematica. I'd love to port
+this to Minikanren, but I'd need sequence-unification to model this feature
+of Mathematica's pattern matcher:
+http://reference.wolfram.com/language/tutorial/PatternSequences.html
+
+These rules can apply _anywhere_ in the program queue.  Note that there's no
+stack here, it' using the partially rewritten program as both the stack and
+queue.
+
+In theory, this approach (without side effects) could be trivially
+parallelized as long as the rewrites are isolated from concurrent writes in
+the a___ and b___ prefix and suffix of the match.
+
+*)
+
+
 In[82]:= ClearAll[literalQ, cat]
 literalQ[x_?NumberQ] := True
 literalQ[x_?BooleanQ] := True
@@ -18,15 +36,11 @@ cat[a___, x_?NumberQ, y_?NumberQ, add, b___] := cat[a, (x + y), b]
 
 
 
+(*some boring tests*)
+
 In[100]:= cat[1, dup, 2, 3, swap]
 
 Out[100]= cat[1, 1, 3, 2]
-
-(* partial evaluation! *)
-
-In[101]:= cat[1, cat[5, 10, 15, add], 2]
-
-Out[101]= cat[1, cat[5, 25], 2]
 
 In[102]:= cat[{1, 2}, cat[3, cons] , call]
 
@@ -39,3 +53,13 @@ Out[103]= cat[1]
 In[104]:= cat[False, cat[1, 1, add], cat[2, 2, add], if]
 
 Out[104]= cat[4]
+
+(* partial evaluation! even inside quotations! *)
+
+In[101]:= cat[1, cat[5, 10, 15, add], 2]
+
+Out[101]= cat[1, cat[5, 25], 2]
+
+In[105]:= cat[1, 2, undefined, 3, 4, add]
+
+Out[105]= cat[1, 2, undefined, 7]

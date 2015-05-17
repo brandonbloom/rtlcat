@@ -1,4 +1,5 @@
 (ns rtlcat.core
+  "A PREfix notation concatenative language."
   (:refer-clojure :exclude [drop]))
 
 (defn quotation? [x]
