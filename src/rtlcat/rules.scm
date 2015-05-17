@@ -2,6 +2,8 @@
 (load "preds.scm")
 
 ;; This one is a (half finished) very basic small step interpreter version.
+;; What I actually want to do here is implement a verison that *scans*
+;; ahead for opportunities for the word rules to match.
 
 (define stacko
   (lambda (stack queue out)

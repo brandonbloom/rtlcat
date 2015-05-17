@@ -1,0 +1,41 @@
+In[82]:= ClearAll[literalQ, cat]
+literalQ[x_?NumberQ] := True
+literalQ[x_?BooleanQ] := True
+literalQ[_cat] := True
+literalQ[x_] := False
+cat[a___, x_?literalQ, y_?literalQ, swap, b___] := cat[a, y, x, b]
+cat[a___, x_?literalQ, dup, b___] := cat[a, x, x, b]
+cat[a___, x_?literalQ, drop, b___] := cat[a, b]
+cat[a___, cat[x___], call, b___] := cat[a, x, b]
+cat[a___, {xs___}, y_?literalQ, cons, b___] := cat[a, {xs, y}, b]
+cat[a___, cat[x___], y_?literalQ, dip, b___] := cat[a, x, y, b]
+cat[a___, True, t_?literalQ, f_?literalQ, choose, b___] := cat[a, t, b]
+cat[a___, False, t_?literalQ, f_?literalQ, choose, b___] := 
+ cat[a, f, b]
+cat[a___, if, b___] := cat[a, choose, call, b]
+cat[a___, x_?NumberQ, y_?NumberQ, add, b___] := cat[a, (x + y), b]
+
+
+
+
+In[100]:= cat[1, dup, 2, 3, swap]
+
+Out[100]= cat[1, 1, 3, 2]
+
+(* partial evaluation! *)
+
+In[101]:= cat[1, cat[5, 10, 15, add], 2]
+
+Out[101]= cat[1, cat[5, 25], 2]
+
+In[102]:= cat[{1, 2}, cat[3, cons] , call]
+
+Out[102]= cat[{1, 2, 3}]
+
+In[103]:= cat[True, 1, 2, choose]
+
+Out[103]= cat[1]
+
+In[104]:= cat[False, cat[1, 1, add], cat[2, 2, add], if]
+
+Out[104]= cat[4]
